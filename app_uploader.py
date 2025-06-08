@@ -10,18 +10,18 @@ from streamlit_utils.app_utils import get_actual_labels
 db = init_firestore()
 
 def main():
-    st.set_page_config(page_title="ECGMaster", page_icon="👨‍⚕️")
-    st.title("👨‍⚕️ ECGMaster")
+    st.set_page_config(page_title="ECGMaster Uploader", page_icon="👨‍⚕️")
+    st.title("👨‍⚕️ ECGMaster Uploader")
 
     st.header("Upload your ECG to see what is going on!")
 
     # Sidebar widgets
     st.sidebar.header("Load files")
     st.sidebar.write('Please load the files with same names:')
-    ecg_dat = st.sidebar.file_uploader(
+    ecg_mat = st.sidebar.file_uploader(
         '.mat file', type='mat',
         accept_multiple_files=False,
-        help="Load DAT file",
+        help="Load MAT file",
         
     )   
     ecg_hea = st.sidebar.file_uploader(
@@ -30,66 +30,52 @@ def main():
         help="Load HEA file"
     )
 
-    if ecg_dat is not None and ecg_hea is not None:
+    if ecg_mat is not None and ecg_hea is not None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             # Save BOTH files to the SAME temporary directory
-            dat_path = os.path.join(tmp_dir, ecg_dat.name)
+            mat_path = os.path.join(tmp_dir, ecg_mat.name)
             hea_path = os.path.join(tmp_dir, ecg_hea.name)
             
-            with open(dat_path, "wb") as f_dat, open(hea_path, "wb") as f_hea:
-                f_dat.write(ecg_dat.getbuffer())
+            with open(mat_path, "wb") as f_mat, open(hea_path, "wb") as f_hea:
+                f_mat.write(ecg_mat.getbuffer())
                 f_hea.write(ecg_hea.getbuffer())
             
             # Verify filenames match (excluding extensions)
-            if ecg_dat.name[:-4] == ecg_hea.name[:-4]:
-                ecg_name = os.path.join(tmp_dir, ecg_dat.name[:-4])  # Full path without extension
+            if ecg_mat.name[:-4] == ecg_hea.name[:-4]:
+                ecg_name = os.path.join(tmp_dir, ecg_mat.name[:-4])
                 st.sidebar.success("Files loaded successfully!")
-                try:
-                    record = wfdb.rdrecord(ecg_name)  # WFDB will find both files
+                
+                record = wfdb.rdrecord(ecg_name)
+                
+                # Process ECG signals
+                ecg = []
+                for ix, _ in enumerate(record.sig_name[:12]): # type: ignore
+                    num_signals = record.fs * 5 # type: ignore
+                    signals = record.p_signal[:num_signals, ix] # type: ignore
+                    signals = signals.reshape(500, (record.fs//100)).mean(axis=1) # type: ignore
+                    ecg.append(signals)
+                ecg = np.array(ecg)
+                
+                actual_labels = get_actual_labels(record.comments[2]) # type: ignore
+                
+                # Save to Firestore
+                doc_ref = db.collection("ecg_data_1").document(ecg_mat.name[:-4])
+                doc_ref.set({
+                    "signals_flat": ecg.flatten().tolist(),  # 1D list
+                    "shape": list(ecg.shape),
+                    "actual_labels": actual_labels
+                })
+                st.success('🎉 Files successfully processed and added to database!')
                     
-                    # Process ECG signals
-                    ecg = []
-                    for ix, _ in enumerate(record.sig_name[:12]): # type: ignore
-                        num_signals = record.fs * 5 # type: ignore
-                        signals = record.p_signal[:num_signals, ix] # type: ignore
-                        signals = signals.reshape(500, (record.fs//100)).mean(axis=1) # type: ignore
-                        ecg.append(signals)
-                    ecg = np.array(ecg)
-                    
-                    # Save to Firestore
-                    doc_ref = db.collection("ecg_data_1").document(ecg_dat.name[:-4])
-                    doc_ref.set({
-                        "signals_flat": ecg.flatten().tolist(),  # 1D list
-                        "shape": list(ecg.shape)
-                    })
-                    st.success('🎉 Files successfully processed and added to database!')
-                    
-                except Exception as e:
-                    st.sidebar.error(f'WFDB processing error: {str(e)}')
-                    
-                actual_labels = get_actual_labels(record.comments[2])
                 st.info(f"""
                         **Actual** interpretation:\n- {actual_labels}
                         """)
                 
-                # model = load_model()
-                # thresh = 0.9
-                # pred_list = model_evaluator(model, input=preprocess_ecg(ecg), thresh=thresh)
-                # actual_list_names = '\n- '.join(label(actual_list))
-                # pred_list_names = '\n- '.join(label(pred_list))
-                # st.info(f"""
-                #         **Actual** interpretation:\n- {actual_list_names}
-                #         """)
-                # st.info(f"""
-                #         **ECGMaster** interpretation (thresh={thresh}):\n- {pred_list_names}
-                #         """)
-                
                 #### Plot settings
-                # Define lead names in the order specified
                 lead_names = ['I', 'II', 'III', 'aVR', 'aVL', 'aVF', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6']
                 lead_order = [0, 3, 1, 4, 2, 5, 6, 9, 7, 10, 8, 11]  # I, aVR, II, aVL, III, aVF, V1, V4, V2, V5, V3, V6
 
-                # Define parameters
+                # Parameters
                 n_samples = 500  # Number of samples per lead
                 sampling_rate = 100  # Hz
                 duration = n_samples / sampling_rate
@@ -140,18 +126,16 @@ def main():
 
                 # Display in Streamlit
                 st.pyplot(fig)
-                        
-                
             else:
-                st.sidebar.error('File names must match (e.g., "00001_lr.hea" and "00001_lr.dat")')
+                st.sidebar.error('File names must match (e.g., "00001.hea" and "00001.mat")')
     else:
-        st.info("👈 Both **DAT** and **HEA** files are needed. Please load them in sidebar.")
+        st.info("👈 Both **MAT** and **HEA** files are needed. Please load them in sidebar.")
 
     # Expander with additional info
     with st.expander("About the app"):
         st.write("""
             This is a sample app to analyze ECG papers.\n
-            Model design and development by Dr.Alireza Soheilipour,MD
+            Design and development by Dr.Alireza Soheilipour
         """)
 
 if __name__ == "__main__":

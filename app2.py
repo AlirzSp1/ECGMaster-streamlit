@@ -10,8 +10,8 @@ from streamlit_utils.app_utils import get_actual_labels
 db = init_firestore()
 
 def main():
-    st.set_page_config(page_title="ECGMaster Uploader", page_icon="👨‍⚕️")
-    st.title("👨‍⚕️ ECGMaster Uploader")
+    st.set_page_config(page_title="ECGMaster", page_icon="👨‍⚕️")
+    st.title("👨‍⚕️ ECGMaster")
 
     st.header("Upload your ECG to see what is going on!")
 

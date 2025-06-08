@@ -141,7 +141,7 @@ def main():
     with st.expander("About the app"):
         st.write("""
             This is a sample app to analyze ECG papers.\n
-            Model design and development by Dr.Alireza Soheilipour,MD
+            Design and development by Dr.Alireza Soheilipour
         """)
 
 if __name__ == "__main__":

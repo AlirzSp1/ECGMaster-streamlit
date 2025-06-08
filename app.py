@@ -50,9 +50,9 @@ def main():
                     # Process ECG signals
                     ecg = []
                     for ix, _ in enumerate(record.sig_name[:12]): # type: ignore
-                        num_signals = record.fs * 10 # type: ignore
+                        num_signals = record.fs * 5 # type: ignore
                         signals = record.p_signal[:num_signals, ix] # type: ignore
-                        signals = signals.reshape(1000, (record.fs//100)).mean(axis=1) # type: ignore
+                        signals = signals.reshape(500, (record.fs//100)).mean(axis=1) # type: ignore
                         ecg.append(signals)
                     ecg = np.array(ecg)
                     
@@ -80,7 +80,7 @@ def main():
                 lead_order = [0, 3, 1, 4, 2, 5, 6, 9, 7, 10, 8, 11]  # I, aVR, II, aVL, III, aVF, V1, V4, V2, V5, V3, V6
 
                 # Define parameters
-                n_samples = 1000  # Number of samples per lead
+                n_samples = 500  # Number of samples per lead
                 sampling_rate = 100  # Hz
                 duration = n_samples / sampling_rate
                 time = np.linspace(0, duration, n_samples)  # Time array with 500 samples

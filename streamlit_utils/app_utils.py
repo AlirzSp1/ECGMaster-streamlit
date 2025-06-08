@@ -1,38 +1,3 @@
-# import torch
-# from source.model import hubert_model
-# from hubert.hubert_ecg import HuBERTECGConfig
-import streamlit as st
-import pandas as pd
-import numpy as np
-
-# @st.cache_resource
-# def load_model():
-#     model_path = 'hubert/pretrained/hubert_ecg_base.pt'
-#     final_model_path = './best_model.pth'
-#     device = 'cpu'
-#     out_dim = 71
-#     model = hubert_model(model_path, out_dim).to(device)
-    
-#     checkpoint = torch.load(final_model_path, map_location='cpu', weights_only=False)
-#     model.load_state_dict(checkpoint['model_state_dict'], strict=True)
-#     print('All keys matched successfully with strict=True')
-    
-#     return model
-
-# def preprocess_ecg(ecg):
-#     out = torch.tensor(ecg, dtype=torch.float32)
-#     out = out.unsqueeze(0)
-#     return out
-
-# def model_evaluator(model, input, thresh=0.8):
-#     model.eval()
-#     with torch.no_grad():
-#         pred = model(input)
-#         pred = torch.sigmoid(pred)
-    
-#     out = [j for j, prob in enumerate(pred[0]) if prob >= thresh]
-#     return out
-
 def get_actual_labels(dxs):
     dxs_list = dxs[4:].split(',')
     actual_labels = '\n- '.join(label(dxs_list))

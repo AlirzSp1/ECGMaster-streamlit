@@ -4,12 +4,10 @@ import wfdb
 import tempfile
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.ticker import MultipleLocator
-# from streamlit_utils.firestore_utils import init_firestore
-from streamlit_utils.app_utils import label, get_actual_labels
-# from streamlit_utils.app_utils import load_model, preprocess_ecg, model_evaluator, 
+from streamlit_utils.firestore_utils import init_firestore
+from streamlit_utils.app_utils import get_actual_labels
 
-# db = init_firestore()
+db = init_firestore()
 
 def main():
     st.set_page_config(page_title="ECGMaster", page_icon="👨‍⚕️")
@@ -59,11 +57,11 @@ def main():
                     ecg = np.array(ecg)
                     
                     # Save to Firestore
-                    # doc_ref = db.collection("stramlit_data").document(ecg_dat.name[:-4])
-                    # doc_ref.set({
-                    #     "signals_flat": ecg.flatten().tolist(),  # 1D list
-                    #     "shape": list(ecg.shape)
-                    # })
+                    doc_ref = db.collection("ecg_data_1").document(ecg_dat.name[:-4])
+                    doc_ref.set({
+                        "signals_flat": ecg.flatten().tolist(),  # 1D list
+                        "shape": list(ecg.shape)
+                    })
                     st.success('🎉 Files successfully processed and added to database!')
                     
                 except Exception as e:

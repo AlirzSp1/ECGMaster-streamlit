@@ -50,39 +50,29 @@ def main():
                     # Process ECG signals
                     ecg = []
                     for ix, _ in enumerate(record.sig_name[:12]): # type: ignore
-                        num_signals = record.fs * 5 # type: ignore
+                        num_signals = record.fs * 10 # type: ignore
                         signals = record.p_signal[:num_signals, ix] # type: ignore
-                        signals = signals.reshape(500, (record.fs//100)).mean(axis=1) # type: ignore
+                        signals = signals.reshape(1000, (record.fs//100)).mean(axis=1) # type: ignore
                         ecg.append(signals)
                     ecg = np.array(ecg)
+                    
+                    actual_labels = get_actual_labels(record.comments[2])
                     
                     # Save to Firestore
                     doc_ref = db.collection("ecg_data_1").document(ecg_mat.name[:-4])
                     doc_ref.set({
                         "signals_flat": ecg.flatten().tolist(),  # 1D list
-                        "shape": list(ecg.shape)
+                        "shape": list(ecg.shape),
+                        "actual_labels": actual_labels
                     })
                     st.success('🎉 Files successfully processed and added to database!')
                     
                 except Exception as e:
                     st.sidebar.error(f'WFDB processing error: {str(e)}')
                     
-                actual_labels = get_actual_labels(record.comments[2])
                 st.info(f"""
                         **Actual** interpretation:\n- {actual_labels}
                         """)
-                
-                # model = load_model()
-                # thresh = 0.9
-                # pred_list = model_evaluator(model, input=preprocess_ecg(ecg), thresh=thresh)
-                # actual_list_names = '\n- '.join(label(actual_list))
-                # pred_list_names = '\n- '.join(label(pred_list))
-                # st.info(f"""
-                #         **Actual** interpretation:\n- {actual_list_names}
-                #         """)
-                # st.info(f"""
-                #         **ECGMaster** interpretation (thresh={thresh}):\n- {pred_list_names}
-                #         """)
                 
                 #### Plot settings
                 # Define lead names in the order specified

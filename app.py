@@ -80,7 +80,7 @@ def main():
                 lead_order = [0, 3, 1, 4, 2, 5, 6, 9, 7, 10, 8, 11]  # I, aVR, II, aVL, III, aVF, V1, V4, V2, V5, V3, V6
 
                 # Define parameters
-                n_samples = 500  # Number of samples per lead
+                n_samples = 1000  # Number of samples per lead
                 sampling_rate = 100  # Hz
                 duration = n_samples / sampling_rate
                 time = np.linspace(0, duration, n_samples)  # Time array with 500 samples

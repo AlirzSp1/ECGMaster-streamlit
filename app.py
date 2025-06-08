@@ -42,44 +42,40 @@ def main():
             
             # Verify filenames match (excluding extensions)
             if ecg_mat.name[:-4] == ecg_hea.name[:-4]:
-                ecg_name = os.path.join(tmp_dir, ecg_mat.name[:-4])  # Full path without extension
+                ecg_name = os.path.join(tmp_dir, ecg_mat.name[:-4])
                 st.sidebar.success("Files loaded successfully!")
-                try:
-                    record = wfdb.rdrecord(ecg_name)  # WFDB will find both files
-                    
-                    # Process ECG signals
-                    ecg = []
-                    for ix, _ in enumerate(record.sig_name[:12]): # type: ignore
-                        num_signals = record.fs * 5 # type: ignore
-                        signals = record.p_signal[:num_signals, ix] # type: ignore
-                        signals = signals.reshape(500, (record.fs//100)).mean(axis=1) # type: ignore
-                        ecg.append(signals)
-                    ecg = np.array(ecg)
-                    
-                    actual_labels = get_actual_labels(record.comments[2])
-                    
-                    # Save to Firestore
-                    doc_ref = db.collection("ecg_data_1").document(ecg_mat.name[:-4])
-                    doc_ref.set({
-                        "signals_flat": ecg.flatten().tolist(),  # 1D list
-                        "shape": list(ecg.shape),
-                        "actual_labels": actual_labels
-                    })
-                    st.success('🎉 Files successfully processed and added to database!')
-                    
-                except Exception as e:
-                    st.sidebar.error(f'WFDB processing error: {str(e)}')
+                
+                record = wfdb.rdrecord(ecg_name)
+                
+                # Process ECG signals
+                ecg = []
+                for ix, _ in enumerate(record.sig_name[:12]): # type: ignore
+                    num_signals = record.fs * 5 # type: ignore
+                    signals = record.p_signal[:num_signals, ix] # type: ignore
+                    signals = signals.reshape(500, (record.fs//100)).mean(axis=1) # type: ignore
+                    ecg.append(signals)
+                ecg = np.array(ecg)
+                
+                actual_labels = get_actual_labels(record.comments[2]) # type: ignore
+                
+                # Save to Firestore
+                doc_ref = db.collection("ecg_data_1").document(ecg_mat.name[:-4])
+                doc_ref.set({
+                    "signals_flat": ecg.flatten().tolist(),  # 1D list
+                    "shape": list(ecg.shape),
+                    "actual_labels": actual_labels
+                })
+                st.success('🎉 Files successfully processed and added to database!')
                     
                 st.info(f"""
                         **Actual** interpretation:\n- {actual_labels}
                         """)
                 
                 #### Plot settings
-                # Define lead names in the order specified
                 lead_names = ['I', 'II', 'III', 'aVR', 'aVL', 'aVF', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6']
                 lead_order = [0, 3, 1, 4, 2, 5, 6, 9, 7, 10, 8, 11]  # I, aVR, II, aVL, III, aVF, V1, V4, V2, V5, V3, V6
 
-                # Define parameters
+                # Parameters
                 n_samples = 500  # Number of samples per lead
                 sampling_rate = 100  # Hz
                 duration = n_samples / sampling_rate
@@ -130,10 +126,8 @@ def main():
 
                 # Display in Streamlit
                 st.pyplot(fig)
-                        
-                
             else:
-                st.sidebar.error('File names must match (e.g., "00001_lr.hea" and "00001_lr.mat")')
+                st.sidebar.error('File names must match (e.g., "00001.hea" and "00001.mat")')
     else:
         st.info("👈 Both **MAT** and **HEA** files are needed. Please load them in sidebar.")
 

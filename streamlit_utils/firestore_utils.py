@@ -16,6 +16,6 @@ def init_firestore():
             "auth_provider_x509_cert_url": st.secrets["firebase"]["auth_provider_x509_cert_url"],
             "client_x509_cert_url": st.secrets["firebase"]["client_x509_cert_url"]
         }
-        cred = credentials.Certificate("streamlit_utils/firebase-key.json")  # Path to your JSON key
+        cred = credentials.Certificate(cred_dict)  # Path to your JSON key
         firebase_admin.initialize_app(cred)
     return firestore.client()

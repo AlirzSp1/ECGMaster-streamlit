@@ -18,10 +18,10 @@ def main():
     # Sidebar widgets
     st.sidebar.header("Load files")
     st.sidebar.write('Please load the files with same names:')
-    ecg_dat = st.sidebar.file_uploader(
+    ecg_mat = st.sidebar.file_uploader(
         '.mat file', type='mat',
         accept_multiple_files=False,
-        help="Load DAT file",
+        help="Load MAT file",
         
     )   
     ecg_hea = st.sidebar.file_uploader(
@@ -30,19 +30,19 @@ def main():
         help="Load HEA file"
     )
 
-    if ecg_dat is not None and ecg_hea is not None:
+    if ecg_mat is not None and ecg_hea is not None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             # Save BOTH files to the SAME temporary directory
-            dat_path = os.path.join(tmp_dir, ecg_dat.name)
+            mat_path = os.path.join(tmp_dir, ecg_mat.name)
             hea_path = os.path.join(tmp_dir, ecg_hea.name)
             
-            with open(dat_path, "wb") as f_dat, open(hea_path, "wb") as f_hea:
-                f_dat.write(ecg_dat.getbuffer())
+            with open(mat_path, "wb") as f_mat, open(hea_path, "wb") as f_hea:
+                f_mat.write(ecg_mat.getbuffer())
                 f_hea.write(ecg_hea.getbuffer())
             
             # Verify filenames match (excluding extensions)
-            if ecg_dat.name[:-4] == ecg_hea.name[:-4]:
-                ecg_name = os.path.join(tmp_dir, ecg_dat.name[:-4])  # Full path without extension
+            if ecg_mat.name[:-4] == ecg_hea.name[:-4]:
+                ecg_name = os.path.join(tmp_dir, ecg_mat.name[:-4])  # Full path without extension
                 st.sidebar.success("Files loaded successfully!")
                 try:
                     record = wfdb.rdrecord(ecg_name)  # WFDB will find both files
@@ -57,7 +57,7 @@ def main():
                     ecg = np.array(ecg)
                     
                     # Save to Firestore
-                    doc_ref = db.collection("ecg_data_1").document(ecg_dat.name[:-4])
+                    doc_ref = db.collection("ecg_data_1").document(ecg_mat.name[:-4])
                     doc_ref.set({
                         "signals_flat": ecg.flatten().tolist(),  # 1D list
                         "shape": list(ecg.shape)
@@ -143,9 +143,9 @@ def main():
                         
                 
             else:
-                st.sidebar.error('File names must match (e.g., "00001_lr.hea" and "00001_lr.dat")')
+                st.sidebar.error('File names must match (e.g., "00001_lr.hea" and "00001_lr.mat")')
     else:
-        st.info("👈 Both **DAT** and **HEA** files are needed. Please load them in sidebar.")
+        st.info("👈 Both **MAT** and **HEA** files are needed. Please load them in sidebar.")
 
     # Expander with additional info
     with st.expander("About the app"):

@@ -40,7 +40,7 @@ def main():
         st.session_state.ecg_loaded = True
         st.session_state.fb_thumb = None  # Reset feedback
         st.session_state.fb_comment = ""   # Reset comment
-        st.sidebar.success("🎉 Patient loaded successfully!")
+        st.sidebar.success("🎉 Patient was loaded successfully!")
 
     # Display ECG and feedback widgets if data is loaded
     if st.session_state.ecg_loaded and st.session_state.ecg_dict:

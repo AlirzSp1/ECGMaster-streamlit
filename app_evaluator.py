@@ -87,19 +87,34 @@ def main():
         # Plot each lead
         for subplot_idx, lead_idx in enumerate(lead_order):
             ax = axes[subplot_idx]
+            # Set light pink background to mimic ECG paper
             ax.set_facecolor('#ffe6e6')
+            
+            # Plot ECG signal
             ax.plot(time, ecg[lead_idx], color='red', linewidth=1)
+            
+            # Set title to lead name
             ax.set_title(lead_names[lead_idx], loc='left', fontsize=10, fontweight='bold')
+            
+            # Major grid: 0.5 mV (5 mm) and 0.2 s (5 mm at 25 mm/s)
             ax.grid(True, which='major', linestyle='-', linewidth=0.8, color='gray', alpha=0.7)
-            ax.set_yticks(np.arange(-2, 2.1, 0.5))
-            ax.set_xticks(np.arange(0, duration + 0.2, 0.2))
+            ax.set_yticks(np.arange(-2, 2.1, 0.5))  # 0.5 mV steps
+            ax.set_xticks(np.arange(0, duration + 0.2, 0.2))  # 0.2 s steps
+            
+            # Minor grid: 0.1 mV (1 mm) and 0.04 s (1 mm at 25 mm/s)
             ax.grid(True, which='minor', linestyle=':', linewidth=0.4, color='gray', alpha=0.4)
             ax.set_yticks(np.arange(-2, 2.1, 0.1), minor=True)
             ax.set_xticks(np.arange(0, duration + 0.04, 0.04), minor=True)
+            
+            # Hide tick labels
             ax.set_xticklabels([])
             ax.set_yticklabels([])
-            ax.set_ylim(-2, 2)
+            
+            # Set axis limits
+            ax.set_ylim(-2, 2)  # Typical ECG range in mV
             ax.set_xlim(0, duration)
+            
+            # Remove spines for cleaner look
             ax.spines['top'].set_visible(False)
             ax.spines['right'].set_visible(False)
             ax.spines['left'].set_visible(False)
@@ -127,7 +142,7 @@ def main():
     # Expander with additional info
     with st.expander("About the app"):
         st.write("""
-            This is a sample app to analyze ECG papers.\n
+            This is an interface for evaluating ECG data.\n
             Design and development by Dr. Alireza Soheilipour
         """)
 

@@ -136,8 +136,8 @@ def main():
     # Expander with additional info
     with st.expander("About the app"):
         st.write("""
-            This is a sample app to analyze ECG papers.\n
-            Design and development by Dr.Alireza Soheilipour
+            This is an interface for uploading ECG data.\n
+            Design and development by Dr. Alireza Soheilipour
         """)
 
 if __name__ == "__main__":

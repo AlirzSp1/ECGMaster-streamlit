@@ -54,10 +54,9 @@ def main():
             st.session_state.fb_thumb = st.session_state.temp_fb_thumb
         st.sidebar.feedback("thumbs", key="temp_fb_thumb", on_change=update_feedback)
         
-        st.sidebar.text('Your comment if needed:')
         def update_comment():
             st.session_state.fb_comment = st.session_state.temp_fb_comment
-        st.sidebar.text_area('Optional', value=st.session_state.fb_comment, key="temp_fb_comment", on_change=update_comment)
+        st.sidebar.text_area('Your comment if needed:', value=st.session_state.fb_comment, key="temp_fb_comment", on_change=update_comment)
         
         btn_submit = st.sidebar.button('Submit!', type='secondary')
 

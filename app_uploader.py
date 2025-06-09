@@ -5,7 +5,7 @@ import tempfile
 import numpy as np
 import matplotlib.pyplot as plt
 from streamlit_utils.firestore_utils import init_firestore
-from streamlit_utils.app_utils import get_actual_labels
+from streamlit_utils.app_utils import label_finder
 
 db = init_firestore()
 
@@ -56,14 +56,16 @@ def main():
                     ecg.append(signals)
                 ecg = np.array(ecg)
                 
-                actual_labels = get_actual_labels(record.comments[2]) # type: ignore
+                label_list = label_finder(record.comments[2]) # type: ignore
+                actual_labels = '\n- '.join(label_list)
                 
                 # Save to Firestore
-                doc_ref = db.collection("ecg_data_1").document(ecg_mat.name[:-4])
+                doc_ref = db.collection("ecg_data").document(ecg_mat.name[:-4])
                 doc_ref.set({
                     "signals_flat": ecg.flatten().tolist(),  # 1D list
                     "shape": list(ecg.shape),
-                    "actual_labels": actual_labels
+                    "label_list": label_list,
+                    "eval": False
                 })
                 st.success('🎉 Files successfully processed and added to database!')
                     

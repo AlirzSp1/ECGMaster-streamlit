@@ -1,9 +1,5 @@
-def get_actual_labels(dxs):
-    dxs_list = dxs[4:].split(',')
-    actual_labels = '\n- '.join(label(dxs_list))
-    return actual_labels
-
-def label(label_list):
+def label_finder(dxs):
+    dx_list = dxs[4:].split(',')
     label_json = {
         "426783006": "sinus rhythm",
         "426177001": "sinus bradycardia",
@@ -139,6 +135,6 @@ def label(label_list):
         "370365005": "left ventricular strain"
     }
     out_list = []
-    for item in label_list:
+    for item in dx_list:
         out_list.append(label_json[item])
     return out_list

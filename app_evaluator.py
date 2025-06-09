@@ -2,14 +2,15 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 from streamlit_utils.firestore_utils import init_firestore
+import datetime
 
 db = init_firestore()
-docs = db.collection('ecg_data_1').stream()
+docs = db.collection('ecg_data').stream()
 ecg_id_list = ['--'] + [doc.id for doc in docs]
 
 def main():
     st.set_page_config(page_title="ECGMaster Uploader", page_icon="👨‍⚕️")
-    st.title("👨‍⚕️ ECGMaster Uploader")
+    st.title("👨‍⚕️ ECGMaster Evaluator")
 
     st.header("Upload your ECG to see what is going on!")
 
@@ -19,19 +20,24 @@ def main():
     btn_load = st.sidebar.button('Load', type='secondary')
     
     if btn_load:
-        ecg_dict = db.collection('ecg_data_1').document(ecg_name).get().to_dict()
+        act_ecg_dict = db.collection('ecg_data').document(ecg_name)
+        ecg_dict = act_ecg_dict.get().to_dict()
         st.sidebar.success("🎉 Patient loaded successfully!")
+        
+        if ecg_dict['eval']:
+            st.sidebar.warning('This patient was evaluated before.')
         
         st.sidebar.text('your feedback:')
         fb_thumb = st.sidebar.feedback("thumbs")
         st.sidebar.text('your comment if needed:')
-        comment_text = st.sidebar.text_area('optional')
+        fb_comment = st.sidebar.text_area('optional')
         btn_submit = st.sidebar.button('Submit!', type='secondary')
         
         ecg = np.array(ecg_dict['signals_flat'])
         ecg = ecg.reshape(12, 500)
         
-        actual_labels = ecg_dict['actual_labels']            
+        label_list = ecg_dict['label_list']  
+        actual_labels = '\n- '.join(label_list)
         st.info(f"""
                 **Actual** interpretation:\n- {actual_labels}
                 """)
@@ -92,7 +98,17 @@ def main():
         # Display in Streamlit
         st.pyplot(fig)
         
-        
+        if btn_submit:
+            act_ecg_dict.update({
+                'eval': True
+            })
+            eval_data = db.collection("eval_data").document(ecg_name)
+            eval_data.set({
+                "fb_thumb": fb_thumb,
+                "fb_comment": fb_comment,
+                "submit_datetime": datetime.datetime.now()
+            })
+            st.sidebar.success('Your feedback was submitted!')
     else:
         st.info("👈 Select a patient in sidebar.")
 

@@ -9,10 +9,10 @@ docs = db.collection('ecg_data').stream()
 ecg_id_list = ['--'] + [doc.id for doc in docs]
 
 def main():
-    st.set_page_config(page_title="ECGMaster Uploader", page_icon="👨‍⚕️")
+    st.set_page_config(page_title="ECGMaster Evaluator", page_icon="👨‍⚕️")
     st.title("👨‍⚕️ ECGMaster Evaluator")
 
-    st.header("Upload your ECG to see what is going on!")
+    st.header("Select your patient to see what is going on!")
 
     # Sidebar widgets
     st.sidebar.header("Select patient")

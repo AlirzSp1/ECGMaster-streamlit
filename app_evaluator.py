@@ -146,6 +146,12 @@ def main():
                 "submit_datetime": datetime.datetime.now()
             })
             st.sidebar.success('Your feedback was submitted!')
+            
+            st.session_state.ecg_name = "--"
+            st.session_state.ecg_dict = None
+            st.session_state.ecg_loaded = False
+            st.session_state.fb_thumb = None
+            st.session_state.fb_comment = ""
     else:
         st.info("👈 Select a patient in sidebar.")
 

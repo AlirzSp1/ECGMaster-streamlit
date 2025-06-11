@@ -116,14 +116,13 @@ def main():
         if st.session_state.ecg_dict['eval']:
             st.sidebar.warning('This patient was evaluated before.')
             
+        load_ecg()
+            
         # Feedback widgets
         st.sidebar.text('Your feedback:')
         st.sidebar.feedback("stars", key="fb_thumb")
-        
         st.sidebar.text_area('Your comment if needed:', value=st.session_state.fb_comment, key="fb_comment")
     
-        load_ecg()
-
         # Handle submission
         if st.sidebar.button('Submit!', type='secondary'):
             act_ecg_dict = db.collection('ecg_data').document(st.session_state.ecg_select)

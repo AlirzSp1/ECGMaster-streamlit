@@ -14,6 +14,8 @@ def main():
     st.title("👨‍⚕️ ECGMaster Evaluator")
 
     st.header("Select your patient to see what is going on!")
+    
+    st.session_state.username = ""
 
     # Initialize session state
     if "ecg_name" not in st.session_state:
@@ -26,9 +28,6 @@ def main():
         st.session_state.fb_thumb = None
     if "fb_comment" not in st.session_state:
         st.session_state.fb_comment = ""
-    if "username" not in st.session_state:
-        st.session_state.username = ""
-        
 
     # Sidebar widgets
     st.sidebar.header("Select patient")
@@ -43,7 +42,6 @@ def main():
         st.session_state.ecg_loaded = True
         st.session_state.fb_thumb = None  # Reset feedback
         st.session_state.fb_comment = ""   # Reset comment
-        st.session_state.username = ""   # Reset username
         st.sidebar.success("🎉 Loaded successfully!")
 
     # Display ECG and feedback widgets if data is loaded
@@ -146,6 +144,8 @@ def main():
                 "submit_datetime": datetime.datetime.now()
             })
             st.sidebar.success('Your feedback was submitted!')
+            
+            st.session_state.ecg_select = ecg_id_list[0]
             
             st.session_state.ecg_name = "--"
             st.session_state.ecg_dict = None

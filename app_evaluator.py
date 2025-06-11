@@ -61,7 +61,7 @@ def main():
         st.sidebar.text('Your feedback:')
         def update_feedback():
             st.session_state.fb_thumb = st.session_state.temp_fb_thumb
-        st.sidebar.feedback("thumbs", key="temp_fb_thumb", on_change=update_feedback)
+        st.sidebar.feedback("stars", key="temp_fb_thumb", on_change=update_feedback, )
         
         def update_comment():
             st.session_state.fb_comment = st.session_state.temp_fb_comment

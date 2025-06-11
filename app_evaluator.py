@@ -26,6 +26,9 @@ def main():
         st.session_state.fb_thumb = None
     if "fb_comment" not in st.session_state:
         st.session_state.fb_comment = ""
+    if "username" not in st.session_state:
+        st.session_state.username = ""
+        
 
     # Sidebar widgets
     st.sidebar.header("Select patient")
@@ -40,6 +43,7 @@ def main():
         st.session_state.ecg_loaded = True
         st.session_state.fb_thumb = None  # Reset feedback
         st.session_state.fb_comment = ""   # Reset comment
+        st.session_state.username = ""   # Reset username
         st.sidebar.success("🎉 Loaded successfully!")
 
     # Display ECG and feedback widgets if data is loaded
@@ -47,6 +51,11 @@ def main():
         ecg_dict = st.session_state.ecg_dict
         if ecg_dict['eval']:
             st.sidebar.warning('This patient was evaluated before.')
+            
+        # Define Users
+        def update_username():
+            st.session_state.username = st.session_state.temp_username
+        st.sidebar.text_input('Your name:', value=st.session_state.username, key="temp_username", on_change=update_username)
 
         # Feedback widgets
         st.sidebar.text('Your feedback:')
@@ -131,6 +140,7 @@ def main():
             })
             eval_data = db.collection("eval_data").document(st.session_state.ecg_name)
             eval_data.set({
+                "username": st.session_state.username,
                 "fb_thumb": st.session_state.fb_thumb,
                 "fb_comment": st.session_state.fb_comment,
                 "submit_datetime": datetime.datetime.now()

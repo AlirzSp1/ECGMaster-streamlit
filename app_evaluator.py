@@ -7,7 +7,7 @@ import datetime
 # Initialize Firestore
 db = init_firestore()
 docs = db.collection('ecg_data').stream()
-ecg_id_list = ['--'] + [doc.id for doc in docs]
+ecg_id_list = [None] + [doc.id for doc in docs]
 
 def main():
     st.set_page_config(page_title="ECGMaster Evaluator", page_icon="👨‍⚕️")
@@ -18,8 +18,8 @@ def main():
     st.session_state.username = ""
 
     # Initialize session state
-    if "ecg_name" not in st.session_state:
-        st.session_state.ecg_name = "--"
+    if "ecg_select" not in st.session_state:
+        st.session_state.ecg_select = False
     if "ecg_dict" not in st.session_state:
         st.session_state.ecg_dict = None
     if "ecg_loaded" not in st.session_state:
@@ -30,15 +30,19 @@ def main():
         st.session_state.fb_comment = ""
 
     # Sidebar widgets
+    # Define Users
+    def update_username():
+        st.session_state.username = st.session_state.temp_username
+    st.sidebar.text_input('Username:', value=st.session_state.username, key="temp_username", on_change=update_username)
+        
     st.sidebar.header("Select patient")
-    ecg_name = st.sidebar.selectbox('Select a patient', ecg_id_list, key="ecg_select")
+    st.sidebar.selectbox('Select a patient', ecg_id_list, key="ecg_select")
     btn_load = st.sidebar.button('Load', type='secondary')
 
     # Load ECG data when button is clicked
-    if btn_load and ecg_name != "--":
-        act_ecg_dict = db.collection('ecg_data').document(ecg_name)
+    if btn_load and st.session_state.ecg_select:
+        act_ecg_dict = db.collection('ecg_data').document(st.session_state.ecg_select)
         st.session_state.ecg_dict = act_ecg_dict.get().to_dict()
-        st.session_state.ecg_name = ecg_name
         st.session_state.ecg_loaded = True
         st.session_state.fb_thumb = None  # Reset feedback
         st.session_state.fb_comment = ""   # Reset comment
@@ -50,11 +54,6 @@ def main():
         if ecg_dict['eval']:
             st.sidebar.warning('This patient was evaluated before.')
             
-        # Define Users
-        def update_username():
-            st.session_state.username = st.session_state.temp_username
-        st.sidebar.text_input('Username:', value=st.session_state.username, key="temp_username", on_change=update_username)
-
         # Feedback widgets
         st.sidebar.text('Your feedback:')
         def update_feedback():
@@ -132,11 +131,11 @@ def main():
 
         # Handle submission
         if btn_submit:
-            act_ecg_dict = db.collection('ecg_data').document(st.session_state.ecg_name)
+            act_ecg_dict = db.collection('ecg_data').document(st.session_state.ecg_select)
             act_ecg_dict.update({
                 'eval': True
             })
-            eval_data = db.collection("eval_data").document(st.session_state.ecg_name)
+            eval_data = db.collection("eval_data").document(st.session_state.ecg_select)
             eval_data.set({
                 "username": st.session_state.username,
                 "fb_thumb": st.session_state.fb_thumb,
@@ -145,7 +144,7 @@ def main():
             })
             st.sidebar.success('Your feedback was submitted!')
             
-            if st.button("Reset selection"):
+            if st.sidebar.button("Reset"):
                 st.session_state.ecg_select = ecg_id_list[0]
                 st.session_state.ecg_dict = None
                 st.session_state.ecg_loaded = False

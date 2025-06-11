@@ -55,7 +55,7 @@ def main():
         # Define Users
         def update_username():
             st.session_state.username = st.session_state.temp_username
-        st.sidebar.text_input('Your name:', value=st.session_state.username, key="temp_username", on_change=update_username)
+        st.sidebar.text_input('Username:', value=st.session_state.username, key="temp_username", on_change=update_username)
 
         # Feedback widgets
         st.sidebar.text('Your feedback:')

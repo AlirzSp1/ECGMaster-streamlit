@@ -5,21 +5,25 @@ from streamlit_utils.firestore_utils import init_firestore
 import datetime
 
 # Initialize Firestore
-db = init_firestore()
-docs = db.collection('ecg_data').stream()
-ecg_id_list = [None] + [doc.id for doc in docs]
+@st.cache_resource
+def init_st():
+    db = init_firestore()
+    docs = db.collection('ecg_data').stream()
+    ecg_id_list = [""] + [doc.id for doc in docs]
+    return db, ecg_id_list
 
 def main():
     st.set_page_config(page_title="ECGMaster Evaluator", page_icon="👨‍⚕️")
     st.title("👨‍⚕️ ECGMaster Evaluator")
-
     st.header("Select your patient to see what is going on!")
     
-    st.session_state.username = ""
+    db, ecg_id_list = init_st()
 
     # Initialize session state
+    if "username" not in st.session_state:
+        st.session_state.username = ""
     if "ecg_select" not in st.session_state:
-        st.session_state.ecg_select = False
+        st.session_state.ecg_select = ""
     if "ecg_dict" not in st.session_state:
         st.session_state.ecg_dict = None
     if "ecg_loaded" not in st.session_state:
@@ -28,50 +32,15 @@ def main():
         st.session_state.fb_thumb = None
     if "fb_comment" not in st.session_state:
         st.session_state.fb_comment = ""
-
-    # Sidebar widgets
-    # Define Users
-    def update_username():
-        st.session_state.username = st.session_state.temp_username
-    st.sidebar.text_input('Username:', value=st.session_state.username, key="temp_username", on_change=update_username)
+    if "fb_submit" not in st.session_state:
+        st.session_state.fb_submit = False
         
-    st.sidebar.header("Select patient")
-    st.sidebar.selectbox('Select a patient', ecg_id_list, key="ecg_select")
-    btn_load = st.sidebar.button('Load', type='secondary')
-
-    # Load ECG data when button is clicked
-    if btn_load and st.session_state.ecg_select:
-        act_ecg_dict = db.collection('ecg_data').document(st.session_state.ecg_select)
-        st.session_state.ecg_dict = act_ecg_dict.get().to_dict()
-        st.session_state.ecg_loaded = True
-        st.session_state.fb_thumb = None  # Reset feedback
-        st.session_state.fb_comment = ""   # Reset comment
-        st.sidebar.success("🎉 Loaded successfully!")
-
-    # Display ECG and feedback widgets if data is loaded
-    if st.session_state.ecg_loaded and st.session_state.ecg_dict:
-        ecg_dict = st.session_state.ecg_dict
-        if ecg_dict['eval']:
-            st.sidebar.warning('This patient was evaluated before.')
-            
-        # Feedback widgets
-        st.sidebar.text('Your feedback:')
-        def update_feedback():
-            st.session_state.fb_thumb = st.session_state.temp_fb_thumb
-        st.sidebar.feedback("stars", key="temp_fb_thumb", on_change=update_feedback, )
-        
-        def update_comment():
-            st.session_state.fb_comment = st.session_state.temp_fb_comment
-        st.sidebar.text_area('Your comment if needed:', value=st.session_state.fb_comment, key="temp_fb_comment", on_change=update_comment)
-        
-        btn_submit = st.sidebar.button('Submit!', type='secondary')
-
-        # ECG data processing
-        ecg = np.array(ecg_dict['signals_flat'])
+    @st.cache_data
+    def load_ecg():
+        ecg = np.array(st.session_state.ecg_dict['signals_flat'])
         ecg = ecg.reshape(12, 500)
         
-        label_list = ecg_dict['label_list']
-        actual_labels = '\n- '.join(label_list)
+        actual_labels = '\n- '.join(st.session_state.ecg_dict['label_list'])
         st.info(f"""
                 **Actual** interpretation:\n- {actual_labels}
                 """)
@@ -129,10 +98,36 @@ def main():
         plt.tight_layout()
         st.pyplot(fig)
 
+    # Sidebar widgets
+    st.sidebar.text_input('Username:', value=st.session_state.username, key="username")
+        
+    st.sidebar.header("Select patient")
+    st.sidebar.selectbox('Select a patient', ecg_id_list, key="ecg_select")
+
+    # Load ECG data when button is clicked
+    if st.sidebar.button('Load') and st.session_state.ecg_select != "":
+        act_ecg_dict = db.collection('ecg_data').document(st.session_state.ecg_select)
+        st.session_state.ecg_dict = act_ecg_dict.get().to_dict()
+        st.session_state.ecg_loaded = True
+        st.sidebar.success("🎉 Loaded successfully!")
+
+    # Display ECG and feedback widgets if data is loaded
+    if st.session_state.ecg_loaded and st.session_state.ecg_dict:
+        if st.session_state.ecg_dict['eval']:
+            st.sidebar.warning('This patient was evaluated before.')
+            
+        # Feedback widgets
+        st.sidebar.text('Your feedback:')
+        st.sidebar.feedback("stars", key="fb_thumb")
+        
+        st.sidebar.text_area('Your comment if needed:', value=st.session_state.fb_comment, key="fb_comment")
+    
+        load_ecg()
+
         # Handle submission
-        if btn_submit:
+        if st.sidebar.button('Submit!', type='secondary'):
             act_ecg_dict = db.collection('ecg_data').document(st.session_state.ecg_select)
-            act_ecg_dict.update({
+            act_ecg_dict.update({ # type: ignore
                 'eval': True
             })
             eval_data = db.collection("eval_data").document(st.session_state.ecg_select)
@@ -142,17 +137,18 @@ def main():
                 "fb_comment": st.session_state.fb_comment,
                 "submit_datetime": datetime.datetime.now()
             })
-            st.sidebar.success('Your feedback was submitted!')
             
-            if st.sidebar.button("Reset"):
-                st.session_state.ecg_select = ecg_id_list[0]
-                st.session_state.ecg_dict = None
-                st.session_state.ecg_loaded = False
-                st.session_state.fb_thumb = None
-                st.session_state.fb_comment = ""
+            st.session_state.ecg_loaded = False
+            st.session_state.fb_submit = True
+            load_ecg.clear() # type: ignore
+            st.rerun()
     else:
         st.info("👈 Select a patient in sidebar.")
-
+        
+    if st.session_state.fb_submit:
+        st.sidebar.success('Your feedback was submitted!')
+        st.session_state.fb_submit = False
+        
     # Expander with additional info
     with st.expander("About the app"):
         st.write("""

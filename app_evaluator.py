@@ -28,8 +28,8 @@ def main():
         st.session_state.ecg_dict = None
     if "ecg_loaded" not in st.session_state:
         st.session_state.ecg_loaded = False
-    if "fb_thumb" not in st.session_state:
-        st.session_state.fb_thumb = None
+    if "fb_stars" not in st.session_state:
+        st.session_state.fb_stars = None
     if "fb_comment" not in st.session_state:
         st.session_state.fb_comment = ""
     if "fb_submit" not in st.session_state:
@@ -120,7 +120,7 @@ def main():
             
         # Feedback widgets
         st.sidebar.text('Your feedback:')
-        st.sidebar.feedback("stars", key="fb_thumb")
+        st.sidebar.feedback("stars", key="fb_stars")
         st.sidebar.text_area('Your comment if needed:', value=st.session_state.fb_comment, key="fb_comment")
     
         # Handle submission
@@ -132,7 +132,7 @@ def main():
             eval_data = db.collection("eval_data").document(st.session_state.ecg_select)
             eval_data.set({
                 "username": st.session_state.username,
-                "fb_thumb": st.session_state.fb_thumb,
+                "fb_stars": st.session_state.fb_stars,
                 "fb_comment": st.session_state.fb_comment,
                 "submit_datetime": datetime.datetime.now()
             })

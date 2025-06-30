@@ -72,12 +72,12 @@ def main():
             ax.set_title(lead_names[lead_idx], loc='left', fontsize=10, fontweight='bold')
             
             # Major grid: 0.5 mV (5 mm) and 0.2 s (5 mm at 25 mm/s)
-            ax.grid(True, which='major', linestyle='-', linewidth=0.8, color='gray', alpha=0.7)
+            ax.grid(True, which='major', linestyle='-', linewidth=0.8, color='gray', alpha=0.8)
             ax.set_yticks(np.arange(-2, 2.1, 0.5))  # 0.5 mV steps
             ax.set_xticks(np.arange(0, duration + 0.2, 0.2))  # 0.2 s steps
             
             # Minor grid: 0.1 mV (1 mm) and 0.04 s (1 mm at 25 mm/s)
-            ax.grid(True, which='minor', linestyle=':', linewidth=0.4, color='gray', alpha=0.4)
+            ax.grid(True, which='minor', linestyle=':', linewidth=0.5, color='gray', alpha=0.5)
             ax.set_yticks(np.arange(-2, 2.1, 0.1), minor=True)
             ax.set_xticks(np.arange(0, duration + 0.04, 0.04), minor=True)
             

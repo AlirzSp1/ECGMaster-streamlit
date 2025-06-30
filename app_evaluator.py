@@ -116,6 +116,7 @@ def main():
         if st.session_state.ecg_dict['eval']:
             st.sidebar.warning('This patient was evaluated before.')
             
+        load_ecg.clear() # type: ignore
         load_ecg()
             
         # Feedback widgets

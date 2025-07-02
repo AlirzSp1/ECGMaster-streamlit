@@ -97,6 +97,8 @@ def main():
 
         plt.tight_layout()
         st.pyplot(fig)
+        
+    load_ecg.clear()
 
     # Sidebar widgets
     st.sidebar.text_input('Username:', value=st.session_state.username, key="username")

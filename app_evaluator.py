@@ -106,7 +106,7 @@ def main():
     st.sidebar.header("Select patient")
     st.sidebar.selectbox('Select a patient', ecg_id_list, key="ecg_select")
     
-    if st.session_state.select_change != st.session_state.ecg_select:
+    if (st.session_state.select_change != st.session_state.ecg_select) and (st.session_state.username != ""):
         load_ecg.clear() # type: ignore
         act_ecg_dict = db.collection('ecg_data').document(st.session_state.ecg_select)
         st.session_state.ecg_dict = act_ecg_dict.get().to_dict()

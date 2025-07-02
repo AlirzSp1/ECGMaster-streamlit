@@ -69,7 +69,7 @@ def main():
             ax.plot(time, ecg[lead_idx], color='red', linewidth=1)
             
             # Set title to lead name
-            ax.set_title(lead_names[lead_idx], loc='left', fontsize=10, fontweight='bold')
+            ax.set_title(f'{lead_names[lead_idx]} {st.session_state.ecg_select}', loc='left', fontsize=10, fontweight='bold')
             
             # Major grid: 0.5 mV (5 mm) and 0.2 s (5 mm at 25 mm/s)
             ax.grid(True, which='major', linestyle='-', linewidth=0.8, color='gray', alpha=0.7)
@@ -113,6 +113,9 @@ def main():
             st.sidebar.success("🎉 Loaded successfully!")
     else:
         if st.sidebar.button('Reset'):
+            st.session_state.ecg_loaded = False
+            load_ecg.clear() # type: ignore
+            st.rerun()
             
     # Display ECG and feedback widgets if data is loaded
     if st.session_state.ecg_loaded and st.session_state.ecg_dict:

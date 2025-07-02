@@ -97,20 +97,16 @@ def main():
 
         plt.tight_layout()
         st.pyplot(fig)
-        
-    load_ecg.clear()
 
     # Sidebar widgets
     st.sidebar.text_input('Username:', value=st.session_state.username, key="username")
         
     st.sidebar.header("Select patient")
     st.sidebar.selectbox('Select a patient', ecg_id_list, key="ecg_select")
-    
-    prev_ecg_select = st.session_state.ecg_select
 
     # Load ECG data when button is clicked
-    if (not st.session_state.ecg_loaded) and st.sidebar.button('Load') and (st.session_state.ecg_select != prev_ecg_select):
-        prev_ecg_select = st.session_state.ecg_select
+    if (not st.session_state.ecg_loaded) and st.session_state.ecg_select != "":
+        load_ecg.clear()
         act_ecg_dict = db.collection('ecg_data').document(st.session_state.ecg_select)
         st.session_state.ecg_dict = act_ecg_dict.get().to_dict()
         st.session_state.ecg_loaded = True

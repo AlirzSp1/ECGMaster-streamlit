@@ -34,6 +34,8 @@ def main():
         st.session_state.fb_comment = ""
     if "fb_submit" not in st.session_state:
         st.session_state.fb_submit = False
+    if "select_change" not in st.session_state:    
+        st.session_state.select_change = ""
         
     @st.cache_data
     def load_ecg():
@@ -104,7 +106,6 @@ def main():
     st.sidebar.header("Select patient")
     st.sidebar.selectbox('Select a patient', ecg_id_list, key="ecg_select")
     
-    st.session_state.select_change = ""
     if st.session_state.select_change != st.session_state.ecg_select:
         load_ecg.clear() # type: ignore
         act_ecg_dict = db.collection('ecg_data').document(st.session_state.ecg_select)

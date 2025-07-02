@@ -113,7 +113,7 @@ def main():
         st.session_state.ecg_loaded = True
         st.session_state.select_change = st.session_state.ecg_select
         st.sidebar.success("🎉 Loaded successfully!")
-    elif st.session_state.username == "":
+    elif (st.session_state.select_change != st.session_state.ecg_select) and (st.session_state.username == ""):
         st.sidebar.warning('Please specify username.')
             
     # Display ECG and feedback widgets if data is loaded

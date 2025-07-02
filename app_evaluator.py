@@ -69,7 +69,7 @@ def main():
             ax.plot(time, ecg[lead_idx], color='red', linewidth=1)
             
             # Set title to lead name
-            ax.set_title(f'{lead_names[lead_idx]} {st.session_state.ecg_select}', loc='left', fontsize=10, fontweight='bold')
+            ax.set_title(lead_names[lead_idx], loc='left', fontsize=10, fontweight='bold')
             
             # Major grid: 0.5 mV (5 mm) and 0.2 s (5 mm at 25 mm/s)
             ax.grid(True, which='major', linestyle='-', linewidth=0.8, color='gray', alpha=0.7)
@@ -114,7 +114,6 @@ def main():
     else:
         if st.sidebar.button('Reset'):
             
-
     # Display ECG and feedback widgets if data is loaded
     if st.session_state.ecg_loaded and st.session_state.ecg_dict:
         if st.session_state.ecg_dict['eval']:
@@ -129,10 +128,10 @@ def main():
     
         # Handle submission
         if st.sidebar.button('Submit!', type='secondary'):
-            act_ecg_dict = db.collection('ecg_data').document(st.session_state.ecg_select)
-            act_ecg_dict.update({ # type: ignore
-                'eval': True
-            })
+            # act_ecg_dict = db.collection('ecg_data').document(st.session_state.ecg_select)
+            # act_ecg_dict.update({
+            #     'eval': True
+            # })
             eval_data = db.collection("eval_data").document(st.session_state.ecg_select)
             eval_data.set({
                 "username": st.session_state.username,

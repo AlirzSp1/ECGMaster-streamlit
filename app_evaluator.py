@@ -103,13 +103,14 @@ def main():
         
     st.sidebar.header("Select patient")
     st.sidebar.selectbox('Select a patient', ecg_id_list, key="ecg_select")
-
-    # Load ECG data when button is clicked
-    if (not st.session_state.ecg_loaded) and st.session_state.ecg_select != "":
-        load_ecg.clear()
+    
+    st.session_state.select_change = ""
+    if (not st.session_state.ecg_loaded) and (st.session_state.select_change != st.session_state.ecg_select):
+        load_ecg.clear() # type: ignore
         act_ecg_dict = db.collection('ecg_data').document(st.session_state.ecg_select)
         st.session_state.ecg_dict = act_ecg_dict.get().to_dict()
         st.session_state.ecg_loaded = True
+        st.session_state.select_change = st.session_state.ecg_select
         st.sidebar.success("🎉 Loaded successfully!")
             
     # Display ECG and feedback widgets if data is loaded

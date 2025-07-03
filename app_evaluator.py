@@ -102,8 +102,8 @@ def main():
 
     # Sidebar widgets
     st.sidebar.header("Config")
-    st.sidebar.text_input('Username:', value=st.session_state.username, key="username")
-    st.sidebar.selectbox('Select a patient', ecg_id_list, key="ecg_select")
+    st.sidebar.text_input('Your Username:', value=st.session_state.username, key="username")
+    st.sidebar.selectbox('Select Patient:', ecg_id_list, key="ecg_select")
     
     if (st.session_state.username != "") and (st.session_state.ecg_select != "") and (st.session_state.select_change != st.session_state.ecg_select):
         load_ecg.clear() # type: ignore

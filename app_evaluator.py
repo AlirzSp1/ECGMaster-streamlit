@@ -107,7 +107,7 @@ def main():
     
     if (st.session_state.username != "") and (st.session_state.ecg_select != "") and (st.session_state.select_change != st.session_state.ecg_select):
         load_ecg.clear() # type: ignore
-        act_ecg_dict = db.collection('ecg_data').document(st.session_state.ecg_select)
+        act_ecg_dict = db.collection('ecg_data_ste').document(st.session_state.ecg_select)
         st.session_state.ecg_dict = act_ecg_dict.get().to_dict()
         st.session_state.ecg_loaded = True
         st.session_state.select_change = st.session_state.ecg_select
@@ -130,7 +130,7 @@ def main():
     
         # Handle submission
         if st.sidebar.button('Submit!', type='secondary'):
-            act_ecg_dict = db.collection('ecg_data').document(st.session_state.ecg_select)
+            act_ecg_dict = db.collection('ecg_data_ste').document(st.session_state.ecg_select)
             act_ecg_dict.update({
                 'eval': True
             })

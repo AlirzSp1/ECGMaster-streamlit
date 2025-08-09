@@ -14,7 +14,7 @@ def init_st():
 
 def main():
     st.set_page_config(page_title="ECG Evaluator", page_icon="👨‍⚕️")
-    st.title("👨‍⚕️ ECG Evaluator")
+    st.title("👨‍⚕️ ECG ST-Elevation Evaluator")
     st.header("Select your patient to see what is going on!")
     
     db, ecg_id_list = init_st()

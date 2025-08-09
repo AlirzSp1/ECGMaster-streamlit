@@ -8,13 +8,13 @@ import datetime
 @st.cache_resource
 def init_st():
     db = init_firestore()
-    docs = db.collection('ecg_data').stream()
+    docs = db.collection('ecg_data_ste').stream()
     ecg_id_list = [""] + [doc.id for doc in docs]
     return db, ecg_id_list
 
 def main():
-    st.set_page_config(page_title="ECGMaster Evaluator", page_icon="👨‍⚕️")
-    st.title("👨‍⚕️ ECGMaster Evaluator")
+    st.set_page_config(page_title="ECG Evaluator", page_icon="👨‍⚕️")
+    st.title("👨‍⚕️ ECG Evaluator")
     st.header("Select your patient to see what is going on!")
     
     db, ecg_id_list = init_st()

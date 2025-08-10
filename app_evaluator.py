@@ -15,16 +15,9 @@ def init_st():
 def main():
     st.set_page_config(page_title="ECG Evaluator", page_icon="👨‍⚕️")
     st.title("👨‍⚕️ ECG ST-Elevation Evaluator")
-    st.markdown("""
-        <style>
-        h1 {
-            direction: rtl;
-            unicode-bidi: bidi-override;
-            text-align: right;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-    st.header("استاد عزیز، لطفا بررسی کنید آیا نوارها همگی به نفع MI هستند یا خیر.", )
+    st.header("""استاد عزیز، لطفا بررسی کنید آیا نوارها همگی به نفع
+              MI
+              هستند یا خیر.""")
     
     db, ecg_id_list = init_st()
 

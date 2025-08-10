@@ -113,7 +113,7 @@ def main():
         st.session_state.select_change = st.session_state.ecg_select
         st.sidebar.success("🎉 Loaded successfully!")
     else:
-        st.sidebar.warning('Please specify username and patient.')
+        st.sidebar.warning('Please fill both fields.')
     
             
     # Display ECG and feedback widgets if data is loaded

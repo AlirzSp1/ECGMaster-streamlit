@@ -157,8 +157,6 @@ def main():
     st.title("👨‍⚕️ ECGMaster Viewer")
     st.header("Upload your ECG to see what is going on!")
     
-    if 'ecg_loaded' not in st.session_state:
-        st.session_state.ecg_loaded = False
     if 'random_scale' not in st.session_state:
         st.session_state.random_scale = False
     if 'random_shift' not in st.session_state:
@@ -175,10 +173,8 @@ def main():
     # Sidebar widgets
     st.sidebar.header("Load ECG")
     ecg_name = st.sidebar.text_input('ECG Name')
-    if st.sidebar.button('Load') and ecg_name != "":
-        st.session_state.ecg_loaded = True
-
-    if st.session_state.ecg_loaded:
+    
+    if ecg_name != "":
         patient_record_path = ecg_base_path + df[df['patient_id']==ecg_name]['record_path'].iloc[0]
         record = wfdb.rdrecord(patient_record_path)
         

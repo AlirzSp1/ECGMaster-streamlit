@@ -183,12 +183,12 @@ def main():
         record = wfdb.rdrecord(patient_record_path)
         
         st.sidebar.success("Files loaded successfully!")
-        st.sidebar.checkbox('random_scale', key='random_scale')
-        st.sidebar.checkbox('random_shift', key='random_shift')
-        st.sidebar.checkbox('random_gaussian_noise', key='random_gaussian_noise')
-        st.sidebar.checkbox('random_crop', key='random_crop')
-        st.sidebar.checkbox('random_time_warp', key='random_time_warp')
-        st.sidebar.checkbox('random_lead_dropout', key='random_lead_dropout')
+        st.sidebar.checkbox('random scale', key='random_scale')
+        st.sidebar.checkbox('random shift', key='random_shift')
+        st.sidebar.checkbox('random gaussian noise', key='random_gaussian_noise')
+        st.sidebar.checkbox('random crop', key='random_crop')
+        st.sidebar.checkbox('random time warp', key='random_time_warp')
+        st.sidebar.checkbox('random lead dropout', key='random_lead_dropout')
         
         load_ecg(record=record, ecg_name=ecg_name)
     else:

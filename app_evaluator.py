@@ -15,7 +15,7 @@ def init_st():
 def main():
     st.set_page_config(page_title="ECG Evaluator", page_icon="👨‍⚕️")
     st.title("👨‍⚕️ ECG ST-Elevation Evaluator")
-    st.header("Select your patient to see what is going on!")
+    st.header("استاد عزیز، لطفا بررسی کنید آیا نوارها همگی به نفع MI هستند یا خیر.")
     
     db, ecg_id_list = init_st()
 
@@ -102,7 +102,7 @@ def main():
 
     # Sidebar widgets
     st.sidebar.header("Config")
-    st.sidebar.text_input('Your Username:', value=st.session_state.username, key="username")
+    st.sidebar.text_input('Your Name:', value=st.session_state.username, key="username")
     st.sidebar.selectbox('Select Patient:', ecg_id_list, key="ecg_select")
     
     if (st.session_state.username != "") and (st.session_state.ecg_select != "") and (st.session_state.select_change != st.session_state.ecg_select):

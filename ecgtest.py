@@ -10,9 +10,6 @@ from streamlit_utils.app_utils import label_finder
 ecg_base_path = 'C:/Data/ECG/will_two_do_2021/data'
 df = pd.read_csv('./data/5_wtd_10seconds.csv')
 
-import numpy as np
-import random
-
 def random_scale(ecg, scale_range=(0.9, 1.1)):
     """Amplitude scaling for numpy ECG [T, 12]."""
     scale = np.random.uniform(*scale_range)
@@ -28,14 +25,6 @@ def random_gaussian_noise(ecg, sigma_range=(0.0, 0.01)):
     sigma = np.random.uniform(*sigma_range)
     noise = np.random.randn(*ecg.shape) * sigma
     return ecg + noise
-
-def random_crop(ecg, crop_size):
-    """Random crop along time axis."""
-    T, _ = ecg.shape
-    if crop_size >= T:
-        return ecg
-    start = np.random.randint(0, T - crop_size)
-    return ecg[start:start + crop_size, :]
 
 def random_time_warp(ecg, max_stretch=0.1):
     """Random time stretch without changing length."""
@@ -72,15 +61,15 @@ def load_ecg(record, ecg_name):
     p_signal = record.p_signal
     
     if st.session_state.random_scale:
-        p_signal = random_scale(p_signal, (0.85, 1.15))
+        p_signal = random_scale(p_signal, (float(st.session_state.scale_range_min), float(st.session_state.scale_range_max)))
     if st.session_state.random_shift:
-        p_signal = random_shift(p_signal, (-0.5, 0.5))
+        p_signal = random_shift(p_signal, (float(st.session_state.shift_range_min), float(st.session_state.shift_range_max)))
     if st.session_state.random_gaussian_noise:
-        p_signal = random_gaussian_noise(p_signal, (0.0, 0.2))
+        p_signal = random_gaussian_noise(p_signal, (float(st.session_state.sigma_range_min), float(st.session_state.sigma_range_max)))
     if st.session_state.random_time_warp:
-        p_signal = random_time_warp(p_signal, max_stretch=0.8)
+        p_signal = random_time_warp(p_signal, max_stretch=float(st.session_state.warp_max_stretch))
     if st.session_state.random_lead_dropout:
-        p_signal = random_lead_dropout(p_signal, p=0.1)
+        p_signal = random_lead_dropout(p_signal, p=float(st.session_state.dropout_p))
     
     ecg = []
     for ix, _ in enumerate(record.sig_name[:12]): # type: ignore
@@ -157,18 +146,16 @@ def main():
     st.title("👨‍⚕️ ECGMaster Viewer")
     st.header("Upload your ECG to see what is going on!")
     
-    if 'random_scale' not in st.session_state:
-        st.session_state.random_scale = False
-    if 'random_shift' not in st.session_state:
-        st.session_state.random_shift = False
-    if 'random_gaussian_noise' not in st.session_state:
-        st.session_state.random_gaussian_noise = False
-    if 'random_crop' not in st.session_state:
-        st.session_state.random_crop = False
-    if 'random_time_warp' not in st.session_state:
-        st.session_state.random_time_warp = False
-    if 'random_lead_dropout' not in st.session_state:
-        st.session_state.random_lead_dropout = False
+    session_state_list = [
+        'random_scale', 'scale_range_min', 'scale_range_max',
+        'random_shift', 'shift_range_min', 'shift_range_max',
+        'random_gaussian_noise', 'sigma_range_min', 'sigma_range_max',
+        'random_time_warp', 'warp_max_stretch',
+        'random_lead_dropout', 'dropout_p'
+    ]
+    for item in session_state_list:
+        if item not in st.session_state:
+            st.session_state[item] = False
     
     # Sidebar widgets
     st.sidebar.header("Load ECG")
@@ -179,12 +166,42 @@ def main():
         record = wfdb.rdrecord(patient_record_path)
         
         st.sidebar.success("Files loaded successfully!")
+        
         st.sidebar.checkbox('random scale', key='random_scale')
+        random_scale_1, random_scale_2 = st.sidebar.columns(2)
+        if st.session_state.random_scale:
+            with random_scale_1:
+                st.text_input('min scale range', value='0.9' , key='scale_range_min')
+            with random_scale_2:
+                st.text_input('max scale range', value='1.1' , key='scale_range_max')
+        
         st.sidebar.checkbox('random shift', key='random_shift')
+        random_shift_1, random_shift_2 = st.sidebar.columns(2)
+        if st.session_state.random_shift:
+            with random_shift_1:
+                st.text_input('min shift range', value='-0.5' , key='shift_range_min')
+            with random_shift_2:
+                st.text_input('max shift range', value='0.5' , key='shift_range_max')
+        
         st.sidebar.checkbox('random gaussian noise', key='random_gaussian_noise')
-        st.sidebar.checkbox('random crop', key='random_crop')
+        random_gaussian_1, random_gaussian_2 = st.sidebar.columns(2)
+        if st.session_state.random_gaussian_noise:
+            with random_gaussian_1:
+                st.text_input('min sigma range', value='0.0' , key='sigma_range_min')
+            with random_gaussian_2:
+                st.text_input('max sigma range', value='0.2' , key='sigma_range_max')
+        
         st.sidebar.checkbox('random time warp', key='random_time_warp')
+        random_time_1, _ = st.sidebar.columns(2)
+        if st.session_state.random_time_warp:
+            with random_time_1:
+                st.text_input('max stretch', value='0.8' , key='warp_max_stretch')
+        
         st.sidebar.checkbox('random lead dropout', key='random_lead_dropout')
+        random_lead_dropout_1, _ = st.sidebar.columns(2)
+        if st.session_state.random_lead_dropout:
+            with random_lead_dropout_1:
+                st.text_input('p', value='0.1' , key='dropout_p')
         
         load_ecg(record=record, ecg_name=ecg_name)
     else:

@@ -1,6 +1,5 @@
-def label_finder(dxs):
-    dx_list = dxs[4:].split(',')
-    label_json = {
+def wtd_label_finder(dxs):
+    label_json_wtd = {
         "426783006": "sinus rhythm",
         "426177001": "sinus bradycardia",
         "164934002": "t wave abnormal",
@@ -134,7 +133,72 @@ def label_finder(dxs):
         "82226007": "diffuse intraventricular block",
         "370365005": "left ventricular strain"
     }
+
     out_list = []
+    dx_list = dxs[4:].split(',')
     for item in dx_list:
-        out_list.append(label_json[item])
+        out_list.append(label_json_wtd[item])
+    return out_list
+    
+def mimic_label_finder(dx_dict):
+    label_json_mimic = {
+        "R01": "sinus rhythm",
+        "R02": "sinus bradycardia",
+        "R03": "sinus tachycardia",
+        "R04": "atrial flutter",
+        "R05": "atrial fibrillation",
+        "R06": "sinus arrhythmia",
+        "R07": "1st degree av block",
+        "R08": "2nd degree av block",
+        "R09": "3rd degree av block",
+        "R10": "prolonged qt interval",
+        "R11": "IV conduction disorder",
+        "R12": "low qrs voltages",
+        "R13": "pacing rhythm",
+        "R14": "supraventricular tachycardia",
+        "R15": "prolonged pr interval",
+        "R16": "ectopic atrial rhythm",
+        "R17": "ectopic atrial bradycardia",
+        "R18": "junctional rhythm",
+        "R19": "Atrioventricular dissociation",
+        "R20": "Accelerated idioventricular rhythm",
+        "R21": "ventricular tachycardia",
+        "R22": "atrial tachycardia",
+        "R23": "Dextrocardia",
+        "R24": "supraventricular rhythm",
+        "R25": "Junctional tachycardia",
+        "M01": "abnormal T wave",
+        "M02": "Left axis deviation",
+        "M03": "Left ventricular hypertrophy",
+        "M04": "ST Changes",
+        "M05": "abnormal QRS",
+        "M06": "right bundle branch block",
+        "M07": "premature atrial contraction/complex",
+        "M08": "possible myocardial ischemia/infarct",
+        "M09": "abnormal q wave",
+        "M10": "left anterior fascicular block",
+        "M11": "Left atrial enlargement/abnormality",
+        "M12": "left bundle branch block",
+        "M13": "right axis deviation",
+        "M14": "premature ventricular contractions",
+        "M15": "old myocardial infarction",
+        "M16": "Abnormal R wave",
+        "M17": "st elevation",
+        "M18": "early repolarization",
+        "M19": "right ventricular hypertrophy",
+        "M20": "supraventricular premature beats",
+        "M21": "left posterior fascicular block",
+        "M22": "left anterior fascicular block",
+        "M23": "wolff parkinson white pattern",
+        "M24": "abnormal P wave",
+        "M25": "fusion beats",
+        "M26": "Right atrial enlargement/abnormality",
+        "M27": "suspect arm ecg leads reversed",
+        "M28": "ST Depression"
+    }
+
+    out_list = []
+    for key, value in dx_dict.items():
+        if value == 1:
+            out_list.append(label_json_mimic[key])
     return out_list
